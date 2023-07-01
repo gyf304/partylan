@@ -112,7 +112,7 @@ namespace lpvpn::tun {
 					pNetwork->GetName(&name);
 					if (wcscmp(name, LPVPN_ADAPTER_NAME) == 0) {
 						pNetwork->SetCategory(NLM_NETWORK_CATEGORY_PRIVATE);
-						std::cout << "Network category set" << std::endl;
+						std::cerr << "Network category set" << std::endl;
 					}
 				}
 				else

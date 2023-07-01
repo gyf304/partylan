@@ -16,7 +16,7 @@ namespace lpvpn::steam {
 		}
 		running = true;
 		thread = std::thread([this]() {
-			std::cout << "Steam callback thread started" << std::endl;
+			std::cerr << "Steam callback thread started" << std::endl;
 			while (this->running) {
 				SteamAPI_RunCallbacks();
 				std::this_thread::sleep_for(LOOP_INTERVAL);
@@ -98,7 +98,6 @@ namespace lpvpn::steam {
 				return;
 			}
 			auto addr = packet.toPacket4().dstAddr();
-			// std::cout << "Sending packet to IP " << addr.toString() << std::endl;
 			if (!addrToSteamID.contains(addr)) {
 				return;
 			}
@@ -113,8 +112,8 @@ namespace lpvpn::steam {
 				0
 			);
 			if (result != k_EResultOK) {
-				std::cout << "Failed to send packet to " << steamID.ConvertToUint64() << std::endl;
-				std::cout << "Error: " << result << std::endl;
+				std::cerr << "Failed to send packet to " << steamID.ConvertToUint64() << std::endl;
+				std::cerr << "Error: " << result << std::endl;
 			}
 		}
 
@@ -201,7 +200,7 @@ namespace lpvpn::steam {
 			return;
 		}
 		SteamNetworkingMessages()->AcceptSessionWithUser(ev->m_identityRemote);
-		std::cout << "Accepted session with " << ev->m_identityRemote.GetSteamID().ConvertToUint64() << std::endl;
+		std::cerr << "Accepted session with " << ev->m_identityRemote.GetSteamID().ConvertToUint64() << std::endl;
 	}
 
 	void SteamNet::Impl::onSteamNetworkingMessagesSessionFailed(SteamNetworkingMessagesSessionFailed_t *ev) {
@@ -209,7 +208,7 @@ namespace lpvpn::steam {
 			return;
 		}
 		auto steamID = ev->m_info.m_identityRemote.GetSteamID();
-		std::cout << "Session with " << steamID.ConvertToUint64() << " failed" << std::endl;
+		std::cerr << "Session with " << steamID.ConvertToUint64() << " failed" << std::endl;
 	}
 
 	void SteamNet::Impl::onPersonaStateChange(PersonaStateChange_t *ev) {
