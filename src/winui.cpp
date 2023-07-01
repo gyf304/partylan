@@ -6,7 +6,6 @@
 #include <stdexcept>
 #include <thread>
 
-#include <wintunimp.h>
 #include <Windows.h>
 #include <steam_api.h>
 

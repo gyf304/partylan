@@ -15,7 +15,8 @@ on:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: MinSizeRel
+  CMAKE_BUILD_TYPE: MinSizeRel
+  STEAMWORKS_SDK_URL: ${{secrets.STEAMWORKS_SDK_URL}}
 
 jobs:
   build:
@@ -37,39 +38,30 @@ jobs:
       shell: bash
       run: |
         [ "${{matrix.os}}" == windows ] && echo "CMAKE_GENERATOR=Visual Studio 17 2022" >>${GITHUB_ENV} || true
-        [ "${{matrix.os}}" == windows ] && [ "${{matrix.arch}}" == "x86"    ] && echo "BINARY_PLATFORM=win32" >>${GITHUB_ENV} || true
-        [ "${{matrix.os}}" == windows ] && [ "${{matrix.arch}}" == "x86_64" ] && echo "BINARY_PLATFORM=x64"   >>${GITHUB_ENV} || true
+        [ "${{matrix.os}}" == windows ] && [ "${{matrix.arch}}" == "x86"    ] && echo "CMAKE_GENERATOR_PLATFORM=Win32" >>${GITHUB_ENV} || true
+        [ "${{matrix.os}}" == windows ] && [ "${{matrix.arch}}" == "x86_64" ] && echo "CMAKE_GENERATOR_PLATFORM=x64"   >>${GITHUB_ENV} || true
 
     - name: Create Build Environment
       # Some projects don't allow in-source building, so create a separate build directory
       # We'll use this as our working directory for all subsequent commands
       run: cmake -E make_directory ${{github.workspace}}/build
 
-    - name: Cache Build
-      id: cache-build
-      uses: actions/cache@v2
-      with:
-        path: build
-        key: ${{matrix.os}}-${{matrix.arch}}
-
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
       # access regardless of the host operating system
-      shell: bash
       working-directory: ${{github.workspace}}/build
       # Note the current convention is to use the -S and -B options here to specify source 
       # and build directories, but this is only available with CMake 3.13 and higher.  
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      run: cmake ../
 
     - name: Build
       working-directory: ${{github.workspace}}/build
-      shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build . --config $BUILD_TYPE
+      run: cmake --build . --config ${{env.CMAKE_BUILD_TYPE}}
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: lpvpn-${{matrix.os}}-${{matrix.arch}}
-        path: build/${{env.BUILD_TYPE}}/
+        name: partylan-${{matrix.os}}-${{matrix.arch}}
+        path: build/${{env.CMAKE_BUILD_TYPE}}/

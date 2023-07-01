@@ -2,7 +2,7 @@
 #include <thread>
 #include <stdexcept>
 #include <system_error>
-#include <wintunimp.h>
+#include <wintun.h>
 #include <guiddef.h>
 #include <netioapi.h>
 #include <iphlpapi.h>
@@ -11,6 +11,47 @@
 #include <atlcomcli.h>
 
 #include "tun.h"
+
+extern "C" {
+
+static WINTUN_CREATE_ADAPTER_FUNC *WintunCreateAdapter;
+static WINTUN_CLOSE_ADAPTER_FUNC *WintunCloseAdapter;
+static WINTUN_OPEN_ADAPTER_FUNC *WintunOpenAdapter;
+static WINTUN_GET_ADAPTER_LUID_FUNC *WintunGetAdapterLUID;
+static WINTUN_GET_RUNNING_DRIVER_VERSION_FUNC *WintunGetRunningDriverVersion;
+static WINTUN_DELETE_DRIVER_FUNC *WintunDeleteDriver;
+static WINTUN_SET_LOGGER_FUNC *WintunSetLogger;
+static WINTUN_START_SESSION_FUNC *WintunStartSession;
+static WINTUN_END_SESSION_FUNC *WintunEndSession;
+static WINTUN_GET_READ_WAIT_EVENT_FUNC *WintunGetReadWaitEvent;
+static WINTUN_RECEIVE_PACKET_FUNC *WintunReceivePacket;
+static WINTUN_RELEASE_RECEIVE_PACKET_FUNC *WintunReleaseReceivePacket;
+static WINTUN_ALLOCATE_SEND_PACKET_FUNC *WintunAllocateSendPacket;
+static WINTUN_SEND_PACKET_FUNC *WintunSendPacket;
+
+static HMODULE
+InitializeWintun(void)
+{
+	HMODULE Wintun =
+		LoadLibraryExW(L"wintun.dll", NULL, LOAD_LIBRARY_SEARCH_APPLICATION_DIR | LOAD_LIBRARY_SEARCH_SYSTEM32);
+	if (!Wintun)
+		return NULL;
+#define X(Name) ((*(FARPROC *)&Name = GetProcAddress(Wintun, #Name)) == NULL)
+	if (X(WintunCreateAdapter) || X(WintunCloseAdapter) || X(WintunOpenAdapter) || X(WintunGetAdapterLUID) ||
+		X(WintunGetRunningDriverVersion) || X(WintunDeleteDriver) || X(WintunSetLogger) || X(WintunStartSession) ||
+		X(WintunEndSession) || X(WintunGetReadWaitEvent) || X(WintunReceivePacket) || X(WintunReleaseReceivePacket) ||
+		X(WintunAllocateSendPacket) || X(WintunSendPacket))
+#undef X
+	{
+		DWORD LastError = GetLastError();
+		FreeLibrary(Wintun);
+		SetLastError(LastError);
+		return NULL;
+	}
+	return Wintun;
+}
+
+}
 
 // F8D2D65B-7012-4602-805E-FD00529352DA
 const GUID LPVPN_ADAPTER_GUID = {
@@ -25,6 +66,11 @@ namespace lpvpn::tun {
 		public:
 		Impl() {
 			CoInitialize(NULL);
+
+			wintunModule = InitializeWintun();
+			if (wintunModule == nullptr) {
+				throw std::system_error(GetLastError(), std::system_category(), "Failed to load wintun.dll");
+			}
 
 			wintun = WintunOpenAdapter(LPVPN_ADAPTER_NAME);
 			if (wintun != nullptr) {
@@ -67,14 +113,18 @@ namespace lpvpn::tun {
 
 		~Impl() {
 			running = false;
-			thread.join();
+			if (thread.joinable()) {
+				thread.join();
+			}
 			if (sessionHandle) {
 				WintunEndSession(sessionHandle);
 			}
 			if (wintun) {
 				WintunCloseAdapter(wintun);
 			}
-
+			if (wintunModule) {
+				FreeLibrary(wintunModule);
+			}
 			CoUninitialize();
 		};
 
@@ -167,6 +217,7 @@ namespace lpvpn::tun {
 		};
 
 		private:
+		HMODULE wintunModule = nullptr;
 		std::thread thread;
 		std::atomic<bool> running = true;
 		std::unique_ptr<Subnet4> currentSubnet;

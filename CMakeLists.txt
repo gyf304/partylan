@@ -18,13 +18,6 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/tmp")
-if (NOT DEFINED BINARY_PLATFORM)
-	if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-		set (BINARY_PLATFORM "x64")
-	elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
-		set (BINARY_PLATFORM "win32")
-	endif()
-endif()
 
 if (WIN32)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
@@ -68,21 +61,6 @@ if (WIN32)
 	target_link_libraries(lpvpn PRIVATE Wintun)
 endif()
 
-# copy LICENSE
-add_custom_command(
-	TARGET lpvpn POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			"${CMAKE_SOURCE_DIR}/LICENSE"
-			$<TARGET_FILE_DIR:lpvpn>
-)
-
-add_custom_command(
-	TARGET lpvpn POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			"${Steamworks_REDISTRIBUTABLE}"
-			$<TARGET_FILE_DIR:lpvpn>
-)
-
 # create steam_appid.txt if compiling debug
 file(
 	WRITE
@@ -92,17 +70,19 @@ file(
 
 add_custom_command(
 	TARGET lpvpn POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			"$<$<CONFIG:Debug>:${CMAKE_SOURCE_DIR}/resources/steam_appid.txt>"
-			$<TARGET_FILE_DIR:lpvpn>
+	COMMAND "${CMAKE_COMMAND}" -E copy
+			"${Steamworks_REDISTRIBUTABLE}"
+			"${CMAKE_SOURCE_DIR}/LICENSE"
+			"$<IF:$<CONFIG:Debug>,${CMAKE_SOURCE_DIR}/resources/steam_appid.txt,>"
+			"$<TARGET_FILE_DIR:lpvpn>"
 )
 
 if (WIN32)
 	# copy wintun.dll
 	add_custom_command(
 		TARGET lpvpn POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		COMMAND "${CMAKE_COMMAND}" -E copy
 				"${Wintun_REDISTRIBUTABLE}"
-				$<TARGET_FILE_DIR:lpvpn>
+				"$<TARGET_FILE_DIR:lpvpn>"
 	)
 endif()

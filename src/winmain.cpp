@@ -2,7 +2,6 @@
 
 #include <string>
 
-#include <wintunimp.h>
 #include <Windows.h>
 #include <steam_api.h>
 
