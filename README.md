@@ -12,3 +12,7 @@ PartyLAN is a tool for playing LAN games over the Steam Network. It is designed 
 4. For the host, open the game and start as a LAN game host as normal.
 5. For the clients, click the system tray icon <img src="resources/github/images/icon.png" width="16" height="16" />, select the host in the "Online Friends" menu, an IP address should be copied to the clipboard.
 6. For the clients, open the game and connect to the host using the IP address from the clipboard.
+
+## License
+
+PartyLAN is licensed under the [GPLv3 LICENSE](LICENSE).
