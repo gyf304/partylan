@@ -6,6 +6,8 @@
 
 #include "steam.h"
 
+#define FREE_EVERY 1000
+
 const auto LOOP_INTERVAL = std::chrono::milliseconds(10);
 const auto FRIEND_REFRESH_INTERVAL = std::chrono::seconds(10);
 
@@ -52,6 +54,12 @@ namespace lpvpn::steam {
 					std::vector<uint8_t> data(size);
 					memcpy(data.data(), msg->m_pData, size);
 					msg->Release();
+
+					readPacketCount++;
+					if (readPacketCount % FREE_EVERY == 0) {
+						SteamAPI_ReleaseCurrentThreadMemory();
+					}
+
 					if (!steamIDToAddr.contains(steamID)) {
 						continue;
 					}
@@ -74,6 +82,7 @@ namespace lpvpn::steam {
 				auto elapsed = std::chrono::milliseconds(0);
 				while (this->running) {
 					if (elapsed >= FRIEND_REFRESH_INTERVAL) {
+						SteamAPI_ReleaseCurrentThreadMemory();
 						refreshEndpoints();
 						elapsed = std::chrono::milliseconds(0);
 					}
@@ -111,9 +120,15 @@ namespace lpvpn::steam {
 				k_nSteamNetworkingSend_Unreliable | k_nSteamNetworkingSend_AutoRestartBrokenSession,
 				0
 			);
+			
 			if (result != k_EResultOK) {
 				std::cerr << "Failed to send packet to " << steamID.ConvertToUint64() << std::endl;
 				std::cerr << "Error: " << result << std::endl;
+			}
+
+			writtenPacketCount++;
+			if (writtenPacketCount % FREE_EVERY == 0) {
+				SteamAPI_ReleaseCurrentThreadMemory();
 			}
 		}
 
@@ -133,6 +148,8 @@ namespace lpvpn::steam {
 		std::thread thread;
 		std::thread refreshThread;
 		std::atomic<bool> running = true;
+		std::uint32_t writtenPacketCount = 0;
+		std::uint32_t readPacketCount = 0;
 
 		CSteamID localSteamID;
 		Address4 _localAddr;
