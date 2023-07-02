@@ -5,11 +5,13 @@
 #include <string>
 #include <stdexcept>
 #include <thread>
+#include <iostream>
 
 #include <Windows.h>
 #include <steam_api.h>
 
 #include "resource.h"
+#include "log.h"
 
 const wchar_t *TRAY_CLASS_NAME = L"TRAY";
 const wchar_t *APP_NAME = L"PartyLAN";
@@ -286,6 +288,8 @@ namespace lpvpn::ui {
 			UI_READY = false;
 			PostMessage(MAIN_HWND, WM_DESTROY, 0, 0);
 			this->thread.join();
+
+			LOG("UI::Impl destroyed");
 		}
 
 		void notify(const std::string &title, const std::string &text) {

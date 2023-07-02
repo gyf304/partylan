@@ -11,6 +11,7 @@
 #include <atlcomcli.h>
 
 #include "tun.h"
+#include "log.h"
 
 extern "C" {
 
@@ -126,6 +127,8 @@ namespace lpvpn::tun {
 				FreeLibrary(wintunModule);
 			}
 			CoUninitialize();
+
+			LOG("Tun::Impl destroyed");
 		};
 
 		void write(Packet &packet) {
@@ -162,7 +165,7 @@ namespace lpvpn::tun {
 					pNetwork->GetName(&name);
 					if (wcscmp(name, LPVPN_ADAPTER_NAME) == 0) {
 						pNetwork->SetCategory(NLM_NETWORK_CATEGORY_PRIVATE);
-						std::cerr << "Network category set" << std::endl;
+						LOG("Network category set");
 					}
 				}
 				else

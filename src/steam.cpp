@@ -5,6 +5,7 @@
 #include <mutex>
 
 #include "steam.h"
+#include "log.h"
 
 #define FREE_EVERY 1000
 
@@ -18,7 +19,7 @@ namespace lpvpn::steam {
 		}
 		running = true;
 		thread = std::thread([this]() {
-			std::cerr << "Steam callback thread started" << std::endl;
+			LOG("Steam callback thread started");
 			while (this->running) {
 				SteamAPI_RunCallbacks();
 				std::this_thread::sleep_for(LOOP_INTERVAL);
@@ -96,6 +97,8 @@ namespace lpvpn::steam {
 			running = false;
 			thread.join();
 			refreshThread.join();
+
+			LOG("SteamNet::Impl destroyed");
 		}
 
 		Subnet4 localAddr() {
@@ -122,8 +125,8 @@ namespace lpvpn::steam {
 			);
 			
 			if (result != k_EResultOK) {
-				std::cerr << "Failed to send packet to " << steamID.ConvertToUint64() << std::endl;
-				std::cerr << "Error: " << result << std::endl;
+				LOG("Failed to send packet to " << steamID.ConvertToUint64());
+				LOG("Error: " << result);
 			}
 
 			writtenPacketCount++;
@@ -217,7 +220,7 @@ namespace lpvpn::steam {
 			return;
 		}
 		SteamNetworkingMessages()->AcceptSessionWithUser(ev->m_identityRemote);
-		std::cerr << "Accepted session with " << ev->m_identityRemote.GetSteamID().ConvertToUint64() << std::endl;
+		LOG("Accepted session with " << ev->m_identityRemote.GetSteamID().ConvertToUint64());
 	}
 
 	void SteamNet::Impl::onSteamNetworkingMessagesSessionFailed(SteamNetworkingMessagesSessionFailed_t *ev) {
@@ -225,7 +228,7 @@ namespace lpvpn::steam {
 			return;
 		}
 		auto steamID = ev->m_info.m_identityRemote.GetSteamID();
-		std::cerr << "Session with " << steamID.ConvertToUint64() << " failed" << std::endl;
+		LOG("Session with " << steamID.ConvertToUint64() << " failed");
 	}
 
 	void SteamNet::Impl::onPersonaStateChange(PersonaStateChange_t *ev) {

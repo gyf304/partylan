@@ -3,27 +3,48 @@
 #include <chrono>
 #include <thread>
 #include <queue>
+#include <fstream>
+#include <iostream>
 
 #include <steam_api.h>
 #include "ui.h"
 #include "steam.h"
 #include "tun.h"
+#include "log.h"
 
 enum EventCode {
 	EVENT_UI_EXIT = 1,
 	EVENT_UI_CLICK,
 };
 
-#ifndef LPVPN_VERSION
-#define LPVPN_VERSION "unknown"
-#endif
-
 using namespace lpvpn;
+
+class LogRedirect {
+	public:
+	LogRedirect(const std::string &filename) {
+		old = std::clog.rdbuf();
+		file = std::ofstream(filename, std::ios_base::app);
+		std::clog.rdbuf(file.rdbuf());
+	}
+
+	~LogRedirect() {
+		std::clog.rdbuf(old);
+		file.flush();
+		file.close();
+	}
+
+	private:
+	std::ofstream file;
+	std::streambuf *old;
+};
 
 int appMain(int argc, char **argv) {
 	if (SteamAPI_RestartAppIfNecessary(STEAM_APP_ID)) {
 		return 0;
 	}
+
+	std::string logFilename = "lpvpn.log.txt";
+	LogRedirect logRedirect(logFilename);
 
 	std::atomic<bool> hasEvent;
 	std::mutex eventMutex;
@@ -127,12 +148,14 @@ int appMain(int argc, char **argv) {
 
 					switch (ev) {
 						case EventCode::EVENT_UI_EXIT:
+							LOG("Exiting");
 							return 0;
 					}
 				}
 			}
 		}
 	} catch (std::exception &e) {
+		LOG("Exception" << e.what());
 		ui.alert("Error", e.what());
 		return 1;
 	}
