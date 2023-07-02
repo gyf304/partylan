@@ -74,6 +74,10 @@ int appMain(int argc, char **argv) {
 			ui.notify("PartyLAN", "IP copied to clipboard");
 		};
 
+		auto websiteCb = [&](ui::MenuItem &mi) {
+			ui.openURL("https://github.com/gyf304/partylan");
+		};
+
 		steamNet.onEndpoints([&](std::vector<steam::SteamNet::Endpoint> &endpoints) {
 			auto allFriendsMenu = std::make_shared<std::vector<ui::MenuItem>>();
 			auto onlineFriendsMenu = std::make_shared<std::vector<ui::MenuItem>>();
@@ -101,6 +105,7 @@ int appMain(int argc, char **argv) {
 			menu->submenu->push_back({ "Online Friends", onlineFriendsMenu, nullptr, nullptr });
 			menu->submenu->push_back({ "My IP: " + localIP.toString(), nullptr, nullptr, nullptr });
 			menu->submenu->push_back({ "Version: " LPVPN_VERSION, nullptr, nullptr, nullptr });
+			menu->submenu->push_back({ "Website / Support", nullptr, websiteCb, nullptr });
 			menu->submenu->push_back({ "Exit", nullptr, exitCb, nullptr });
 			ui.setMenu(std::move(menu));
 		});

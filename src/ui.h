@@ -32,6 +32,7 @@ namespace lpvpn::ui {
 		void onEvent(std::function<void(Event&)> cb);
 		void setMenu(std::unique_ptr<MenuItem> menu);
 		void setClipboard(const std::string &text);
+		void openURL(const std::string &url);
 
 		private:
 		// pimpl

@@ -343,6 +343,12 @@ namespace lpvpn::ui {
 			}
 		}
 
+		void openURL(const std::string &url) {
+			std::wstring wurl;
+			convertUTF8ToUTF16(url, wurl);
+			ShellExecute(NULL, L"open", wurl.c_str(), NULL, NULL, SW_SHOWNORMAL);
+		}
+
 		private:
 			std::thread thread;
 			std::unique_ptr<Event> _event;
@@ -359,6 +365,7 @@ namespace lpvpn::ui {
 	void UI::onEvent(std::function<void(Event&)> cb) { impl->onEvent(cb); }
 	void UI::setMenu(std::unique_ptr<MenuItem> menu) { impl->setMenu(std::move(menu)); }
 	void UI::setClipboard(const std::string &text) { impl->setClipboard(text); }
+	void UI::openURL(const std::string &url) { impl->openURL(url); }
 }
 
 #endif
