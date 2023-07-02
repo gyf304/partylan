@@ -1,0 +1,1 @@
+Data from [PCGamingWiki](https://www.pcgamingwiki.com/wiki/List_of_games_with_LAN_multiplayer), licensed under [CC BY-NC-SA 3.0](https://www.pcgamingwiki.com/wiki/List_of_games_with_LAN_multiplayer#:~:text=Creative%20Commons%20Attribution%20Non%2DCommercial%20Share%20Alike)
