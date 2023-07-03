@@ -145,8 +145,9 @@ int appMain(int argc, char **argv) {
 			}
 			auto menu = std::make_unique<ui::MenuItem>();
 			auto moreMenu = std::make_shared<std::vector<ui::MenuItem>>();
-			moreMenu->push_back({ "Version: " LPVPN_VERSION, nullptr, nullptr, nullptr });
-			moreMenu->push_back({ "Website / Support", nullptr, urlCb, std::make_shared<std::string>("https://github.com/gyf304/partylan") });
+			moreMenu->push_back({ "Version: " LPVPN_VERSION " (" LPVPN_GIT_VERSION ")", nullptr, nullptr, nullptr });
+			moreMenu->push_back({ "Website", nullptr, urlCb, std::make_shared<std::string>("https://github.com/gyf304/partylan") });
+			moreMenu->push_back({ "Help", nullptr, urlCb, std::make_shared<std::string>("https://github.com/gyf304/partylan/wiki") });
 			moreMenu->push_back({ "LAN Game DB", nullptr, urlCb, std::make_shared<std::string>("https://github.com/gyf304/partylan/blob/main/resources/github/lan-games-db/lan-games.csv") });
 			menu->submenu = std::make_shared<std::vector<ui::MenuItem>>();
 			menu->submenu->push_back({ "All Friends", allFriendsMenu, nullptr, nullptr });
