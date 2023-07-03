@@ -43,6 +43,14 @@ int appMain(int argc, char **argv) {
 		return 0;
 	}
 
+	// check privacy flag
+	bool privacy = false;
+	for (int i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "--privacy") == 0 || strcmp(argv[i], "-privacy") == 0) {
+			privacy = true;
+		}
+	}
+
 	std::string logFilename = "lpvpn.log.txt";
 	LogRedirect logRedirect(logFilename);
 
@@ -105,6 +113,21 @@ int appMain(int argc, char **argv) {
 			for (auto &endpoint : endpoints) {
 				auto ptr = std::make_shared<steam::SteamNet::Endpoint>(endpoint);
 				auto text = endpoint.name + " (" + endpoint.addr.toString() + ")";
+				if (privacy) {
+					// if privacy mode is enabled, only show first 3 characters of name
+					auto name = endpoint.name;
+					if (name.length() > 3) {
+						name = name.substr(0, 3) + std::string(name.length() - 3, '*');
+					}
+					// hide middle 2 bytes of IP address, since they are computed from steam ids and can be reversed
+					auto ipstr = endpoint.addr.toString();
+					auto firstDotPos = ipstr.find_first_of('.');
+					auto lastDotPos = ipstr.find_last_of('.');
+					if (firstDotPos != std::string::npos && lastDotPos != std::string::npos && firstDotPos != lastDotPos) {
+						ipstr = ipstr.substr(0, firstDotPos + 1) + std::string(lastDotPos - firstDotPos - 1, '*') + ipstr.substr(lastDotPos);
+					}
+					text = name + " (" + ipstr + ")";
+				}
 				allFriendsMenu->push_back({
 					text,
 					nullptr,
@@ -128,7 +151,11 @@ int appMain(int argc, char **argv) {
 			menu->submenu = std::make_shared<std::vector<ui::MenuItem>>();
 			menu->submenu->push_back({ "All Friends", allFriendsMenu, nullptr, nullptr });
 			menu->submenu->push_back({ "Online Friends", onlineFriendsMenu, nullptr, nullptr });
-			menu->submenu->push_back({ "My IP: " + localIP.toString(), nullptr, nullptr, nullptr });
+			if (privacy) {
+				menu->submenu->push_back({ "Privacy Mode Enabled, IP hidden", nullptr, nullptr, nullptr });
+			} else {
+				menu->submenu->push_back({ "My IP: " + localIP.toString(), nullptr, nullptr, nullptr });
+			}
 			menu->submenu->push_back({ "More", moreMenu, nullptr, nullptr});
 			menu->submenu->push_back({ "Exit", nullptr, exitCb, nullptr });
 			ui.setMenu(std::move(menu));
