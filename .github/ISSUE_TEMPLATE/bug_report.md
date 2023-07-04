@@ -14,8 +14,7 @@ A clear and concise description of what the bug is.
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
-3. Scroll down to '....'
-4. See error
+3. See error
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
@@ -23,16 +22,14 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+**Environment** (Fill this out)
+ - OS: [e.g. Windows 11]
+ - Version [e.g. 22H2]
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+**Logs**
+A log file should be present in the installation directory named `lpvpn.log.txt`.
+Attach that file if possible.
+(Note that you or your friends' Steam ID might be logged. You may want to remove these IDs if you want these to remain private.)
 
 **Additional context**
 Add any other context about the problem here.
