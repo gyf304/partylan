@@ -108,12 +108,25 @@ std::shared_ptr<WinMenuItem> ACTIVE_WIN_MENU = nullptr;
 
 int AddIcon(HWND hwnd)
 {
+	// check registry for dark mode
+	HKEY hKey;
+	DWORD dwValue = 0;
+	DWORD dwSize = sizeof(DWORD);
+	LSTATUS status = RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", 0, KEY_READ, &hKey);
+	if (status == ERROR_SUCCESS) {
+		status = RegQueryValueEx(hKey, L"AppsUseLightTheme", NULL, NULL, (LPBYTE)&dwValue, &dwSize);
+		RegCloseKey(hKey);
+	}
+	if (status != ERROR_SUCCESS) {
+		dwValue = 1; // default to light mode
+	}
+
 	MAIN_NID.cbSize = sizeof(MAIN_NID);
 	MAIN_NID.hWnd = hwnd;
 	MAIN_NID.uID = 1;
 	MAIN_NID.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
 	MAIN_NID.uCallbackMessage = WM_TRAY;
-	MAIN_NID.hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAINICON));
+	MAIN_NID.hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(dwValue ? IDI_LIGHTMODEICON : IDI_DARKMODEICON));
 	lstrcpy(MAIN_NID.szTip, APP_NAME);
 	return Shell_NotifyIcon(NIM_ADD, &MAIN_NID);
 }
@@ -166,7 +179,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					ACTIVE_WIN_MENU = WIN_MENU;
 				}
 			}
-			
+
 			if (ACTIVE_WIN_MENU != nullptr) {
 				POINT pt;
 				GetCursorPos(&pt);

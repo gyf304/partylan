@@ -3,7 +3,7 @@
 
 #include "resource.h"
 
-IDI_MAINICON ICON DISCARDABLE "icon.ico"
+IDI_MAINICON      ICON DISCARDABLE "icon.ico"
 
 // version information
 VS_VERSION_INFO VERSIONINFO
@@ -27,7 +27,7 @@ BEGIN
 			VALUE "CompanyName", "LPVPN\0"
 			VALUE "LegalCopyright", "Copyright (C) LPVPN\0"
 			VALUE "Licence", "\0"
-			VALUE "Info", "http://sources.redhat.com/pthreads-win32/\0"
+			VALUE "Info", "https://github.com/gyf304/partylan/\0"
 		END
 	END
 	BLOCK "VarFileInfo"
