@@ -4,6 +4,11 @@
 
 PartyLAN is a tool for playing LAN games over the Steam Network. It is designed to be easy to use and work with any game that supports LAN play.
 
+<video autoplay muted controls>
+	<source src="resources/common/videos/partylan-demo.mp4" type="video/mp4">
+	Your browser does not support the video tag.
+</video>
+
 ## Usage
 
 1. Download PartyLAN from [Steam](https://store.steampowered.com/app/1122990/PartyLAN).
