@@ -1,6 +1,7 @@
 ![PartyLAN Banner](resources/github/images/partylan-banner.jpg)
 
 [<img height="50" src="resources/github/images/download-from-steam.svg" />](https://store.steampowered.com/app/1122990/PartyLAN)
+[Request a beta key](https://forms.gle/mVXYBTuUPrGjRP1b6)
 
 PartyLAN is a tool for playing LAN games over the Steam Network. It is designed to be easy to use and work with any game that supports LAN play.
 
