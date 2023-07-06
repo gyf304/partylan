@@ -20,7 +20,7 @@ https://github.com/gyf304/partylan/assets/7296537/ca1183e5-f3ba-4d95-8c65-6d3b18
 
 ## License
 
-PartyLAN is licensed under the [GPLv3 LICENSE](LICENSE).
+PartyLAN is licensed under the [BSD License (3-Clause)](LICENSE).
 
 ### Third Party Licenses
 
