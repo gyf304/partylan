@@ -3,7 +3,7 @@
 [<img height="50" src="resources/github/images/download-from-steam.svg" />](https://store.steampowered.com/app/1122990/PartyLAN)
 [Request a beta key](https://forms.gle/mVXYBTuUPrGjRP1b6)
 
-PartyLAN is a tool for playing LAN games over the Steam Network. It is designed to be easy to use and work with any game that supports LAN play.
+PartyLAN is a tool for playing LAN games over the Steam Network. It is designed to be easy to use and work with any game that supports LAN play. The successor to [LPVPN](https://github.com/gyf304/lpvpn), which amassed 5.5K downloads before Discord discontinued its Game SDK.
 
 [Compatible Games List](resources/github/lan-games-db/lan-games.csv)
 
