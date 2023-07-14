@@ -1,3 +1,6 @@
+Quick Update:
+Steam rejected PartyLAN to be listed on the Steam store. I'm currently evaluating the migration plan off Steam.
+
 [<img height="50" src="resources/github/images/download-from-steam.svg" />](https://store.steampowered.com/app/1122990/PartyLAN)
 
 [Request a beta key](https://forms.gle/mVXYBTuUPrGjRP1b6)
