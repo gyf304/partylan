@@ -25,6 +25,8 @@ namespace lpvpn::ip {
 		Address4(uint32_t addr);
 		~Address4();
 		uint32_t toUint32() const;
+		bool isBroadcast() const;
+		bool isMulticast() const;
 		bool operator==(const Address4& other) const;
 		Address4 operator+(uint32_t other) const;
 		Address4 operator-(uint32_t other) const;

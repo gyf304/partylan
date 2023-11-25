@@ -34,6 +34,12 @@ namespace lpvpn::ip {
 		}
 		return ret;
 	}
+	bool Address4::isBroadcast() const {
+		return toUint32() == 0xFFFFFFFF;
+	}
+	bool Address4::isMulticast() const {
+		return (addr[0] & 0xF0) == 0xE0;
+	}
 	bool Address4::operator==(const Address4& other) const {
 		return addr == other.addr;
 	}
