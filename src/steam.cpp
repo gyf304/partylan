@@ -7,6 +7,7 @@
 #include "steam.h"
 #include "log.h"
 
+#define MAX_BROADCAST 16
 #define FREE_EVERY 1000
 
 const auto LOOP_INTERVAL = std::chrono::milliseconds(10);
@@ -15,7 +16,7 @@ const auto FRIEND_REFRESH_INTERVAL = std::chrono::seconds(10);
 namespace lpvpn::steam {
 	Steam::Steam() {
 		if (!SteamAPI_Init()) {
-			throw std::runtime_error("SteamAPI_Init failed");
+			throw std::runtime_error("SteamAPI_Init failed, is Steam running?");
 		}
 		running = true;
 		thread = std::thread([this]() {
@@ -36,6 +37,8 @@ namespace lpvpn::steam {
 	class SteamNet::Impl {
 		public:
 		Impl(std::shared_ptr<Steam> steam): steam(steam) {
+			appID = SteamUtils()->GetAppID();
+
 			localSteamID = SteamUser()->GetSteamID();
 			_localAddr = assignAddr(localSteamID);
 
@@ -110,6 +113,33 @@ namespace lpvpn::steam {
 				return;
 			}
 			auto addr = packet.toPacket4().dstAddr();
+			if (addr.isBroadcast() || addr.isMulticast()) {
+				std::vector<SteamNetworkingIdentity> identities;
+				{
+					std::lock_guard<std::mutex> lk(refreshMutex);
+					for (auto [steamID, addr] : steamIDToAddr) {
+						SteamNetworkingIdentity identity;
+						identity.SetSteamID(steamID);
+						identities.push_back(identity);
+						if (identities.size() >= MAX_BROADCAST) {
+							break;
+						}
+					}
+				}
+				for (auto identity : identities) {
+					auto result = SteamNetworkingMessages()->SendMessageToUser(
+						identity,
+						packet.packet.data(), packet.packet.size(),
+						k_nSteamNetworkingSend_Unreliable | k_nSteamNetworkingSend_AutoRestartBrokenSession,
+						0
+					);
+					if (result != k_EResultOK) {
+						LOG("Failed to send multicast packet to " << identity.GetSteamID().ConvertToUint64());
+						LOG("Error: " << result);
+					}
+				}
+				return;
+			}
 			if (!addrToSteamID.contains(addr)) {
 				return;
 			}
@@ -123,7 +153,7 @@ namespace lpvpn::steam {
 				k_nSteamNetworkingSend_Unreliable | k_nSteamNetworkingSend_AutoRestartBrokenSession,
 				0
 			);
-			
+
 			if (result != k_EResultOK) {
 				LOG("Failed to send packet to " << steamID.ConvertToUint64());
 				LOG("Error: " << result);
@@ -154,6 +184,7 @@ namespace lpvpn::steam {
 		std::uint32_t writtenPacketCount = 0;
 		std::uint32_t readPacketCount = 0;
 
+		std::uint32_t appID = 0;
 		CSteamID localSteamID;
 		Address4 _localAddr;
 		std::vector<Endpoint> _endpoints;
@@ -206,6 +237,13 @@ namespace lpvpn::steam {
 				auto canonicalAddr = computeAddr(steamID);
 				auto addr = assignAddr(steamID);
 				bool online = SteamFriends()->GetFriendPersonaState(steamID) != k_EPersonaStateOffline;
+				if (online) {
+					FriendGameInfo_t gameInfo;
+					auto inGame = SteamFriends()->GetFriendGamePlayed(steamID, &gameInfo);
+					if (!inGame || gameInfo.m_gameID.AppID() != appID) {
+						online = false;
+					}
+				}
 				_endpoints.push_back({SteamFriends()->GetFriendPersonaName(steamID), addr, canonicalAddr, online});
 			}
 			if (onEndpointsCb != nullptr) {
